@@ -4,8 +4,7 @@
 
 using std::string;
 
-template <typename T>
-inline bool s_contains(const string &str, const T &find_val) {
+inline bool s_contains(const string &str, const string &find_val) {
     return str.find(find_val) != string::npos;
 }
 
@@ -30,22 +29,24 @@ static void bench_s_contains(benchmark::State &state, Args&&... args) {
 }
 
 template <class ...Args>
-static void bench_s_contains_ic(benchmark::State &state, Args&&... args) {
+static void bench_findstr(benchmark::State &state, Args&&... args) {
     auto args_tuple = std::make_tuple(std::move(args)...);
-    auto haystack = std::get<0>(args_tuple), neddle = std::get<1>(args_tuple);
+    const auto[haystack, needle, func] = args_tuple;
 
     for (auto _ : state) {
-        auto found = s_contains_ic(haystack, neddle);
+        auto found = func(haystack, needle);
         benchmark::DoNotOptimize(found);
     }
 }
 
-BENCHMARK_CAPTURE(bench_s_contains, cmd_filter,
+BENCHMARK_CAPTURE(bench_findstr, sensitive/cmd_filter,
                   string("/Applications/iTerm.app/Contents/MacOS/iTerm2"),
-                  string("iterm"));
+                  string("iterm"),
+                  s_contains);
 
-BENCHMARK_CAPTURE(bench_s_contains_ic, cmd_filter,
+BENCHMARK_CAPTURE(bench_findstr, insensitive/cmd_filter,
                   string("/Applications/iTerm.app/Contents/MacOS/iTerm2"),
-                  string("iterm"));
+                  string("iterm"),
+                  s_contains_ic);
 
 BENCHMARK_MAIN();
