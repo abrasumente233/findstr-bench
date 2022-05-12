@@ -18,17 +18,6 @@ inline bool s_contains_ic(const string &str, const string &find_val) {
 }
 
 template <class ...Args>
-static void bench_s_contains(benchmark::State &state, Args&&... args) {
-    auto args_tuple = std::make_tuple(std::move(args)...);
-    auto haystack = std::get<0>(args_tuple), neddle = std::get<1>(args_tuple);
-
-    for (auto _ : state) {
-        auto found = s_contains(haystack, neddle);
-        benchmark::DoNotOptimize(found);
-    }
-}
-
-template <class ...Args>
 static void bench_findstr(benchmark::State &state, Args&&... args) {
     auto args_tuple = std::make_tuple(std::move(args)...);
     const auto[haystack, needle, func] = args_tuple;
